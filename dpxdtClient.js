@@ -1,13 +1,16 @@
+var testFileName = process.argv[2];
+
 var request = require('request');
 var Q = require('q');
+var fs = require('fs');
 
-var baseUrl = 'http://localhost:5000/api/';
+var baseUrlForDpxdtServer = 'http://localhost:5000/api/';
 var buildId = 1;
 
 function createRelease() {
     var createDeferred = Q.defer();
 
-    request.post(baseUrl + 'create_release', {
+    request.post(baseUrlForDpxdtServer + 'create_release', {
         form: {
             build_id: buildId,
             release_name: (new Date()).toJSON()
@@ -24,7 +27,7 @@ function requestRun(releaseName, releaseNumber, testName, url) {
 
     var deferred = Q.defer();
 
-    request.post(baseUrl + 'request_run', {
+    request.post(baseUrlForDpxdtServer + 'request_run', {
         form: {
             build_id: buildId,
             release_name: releaseName,
@@ -40,20 +43,31 @@ function requestRun(releaseName, releaseNumber, testName, url) {
     return deferred.promise;
 }
 
-var tests = require('./tests');
+function loadTests() {
+    console.log("Loading " + testFileName);
+    return Q.nfcall(fs.readFile, testFileName).then(function (fileData) {
+        return JSON.parse(fileData);
+    });
+}
+
+function runTests(releaseName, releaseNumber, testFile) {
+    var promises = [];
+    var tests = testFile.tests;
+    for (var i = 0; i < tests.length; i++) {
+        var test = tests[i];
+        var promise = requestRun(releaseName, releaseNumber, test.name, testFile.baseUrl + test.url);
+
+        promises.push(promise);
+    }
+
+    return Q.all(promises);
+}
+
 
 createRelease()
     .then(function (body) {
-        var promises = [];
-        for (var i = 0; i < tests.length; i++) {
-            var test = tests[i];
-            var promise = requestRun(body.release_name, body.release_number, test.name, test.url);
-
-            promises.push(promise);
-        }
-
-        return Q.all(promises);
+        return loadTests().then(function (testFile) {
+            return runTests(body.release_name, body.release_number, testFile);
+        });
     })
-    .then(function (results) {
-        console.log(results);
-    });
+    .then(console.log);

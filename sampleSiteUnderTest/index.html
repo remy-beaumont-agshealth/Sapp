@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<head>
+
+</head>
+<body>
+<p>
+    This is a site that you might be interested in taking snapshots of. Your own site is probably more interesting, but
+    maybe this little page can help you understand how to use this dpxdt client.
+</p>
+
+<div id="awesome-div">
+    <p>
+        This is a div.  It should disappear when the button is clicked.
+    </p>
+</div>
+
+<button id="div-killer">
+    Remove the div!
+</button>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>
+    $('#div-killer').on('click', function(){
+        $('#awesome-div').hide();
+    });
+</script>
+</body>
+</html>
