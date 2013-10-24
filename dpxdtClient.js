@@ -19,7 +19,7 @@ function createRelease() {
     return createDeferred.promise;
 }
 
-function requestRun(releaseName, releaseNumber, url) {
+function requestRun(releaseName, releaseNumber, testName, url) {
     console.log("Trying to request " + releaseName + ":" + releaseNumber + ' (' + url + ')');
 
     var deferred = Q.defer();
@@ -29,8 +29,8 @@ function requestRun(releaseName, releaseNumber, url) {
             build_id: buildId,
             release_name: releaseName,
             release_number: releaseNumber,
-            url: url,
-            run_name: 'Rando-Dando!'
+            run_name: testName,
+            url: url
         }
     }, function (err, response, body) {
         console.log("Requested " + releaseName + ":" + releaseNumber + ' (' + url + '): ');
@@ -40,10 +40,20 @@ function requestRun(releaseName, releaseNumber, url) {
     return deferred.promise;
 }
 
-createRelease().then(function (body) {
-    return requestRun(body.release_name,
-        body.release_number,
-        '/Users/rel/Documents/Personal/dpxdt/dependencies/WTForms/docs/html/_static/comment-bright.png');
-}).then(function(body){
-        console.log(body);
+var tests = require('./tests');
+
+createRelease()
+    .then(function (body) {
+        var promises = [];
+        for (var i = 0; i < tests.length; i++) {
+            var test = tests[i];
+            var promise = requestRun(body.release_name, body.release_number, test.name, test.url);
+
+            promises.push(promise);
+        }
+
+        return Q.all(promises);
+    })
+    .then(function (results) {
+        console.log(results);
     });
