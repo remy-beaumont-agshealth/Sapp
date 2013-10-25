@@ -22,7 +22,7 @@ function createRelease() {
     return createDeferred.promise;
 }
 
-function requestRun(releaseName, releaseNumber, testName, url) {
+function requestRun(releaseName, releaseNumber, testName, url, config) {
     console.log("Trying to request " + releaseName + ":" + releaseNumber + ' (' + url + ')');
 
     var deferred = Q.defer();
@@ -33,10 +33,11 @@ function requestRun(releaseName, releaseNumber, testName, url) {
             release_name: releaseName,
             release_number: releaseNumber,
             run_name: testName,
+            config: JSON.stringify(config), //The receiving API doesn't know how to accept a multi-key value
             url: url
         }
     }, function (err, response, body) {
-        console.log("Requested " + releaseName + ":" + releaseNumber + ' (' + url + '): ');
+        console.log("Requested " + releaseName + ":" + releaseNumber + ' (' + url + '): ' + JSON.stringify(config));
         deferred.resolve(body);
     });
 
@@ -55,7 +56,7 @@ function runTests(releaseName, releaseNumber, testFile) {
     var tests = testFile.tests;
     for (var i = 0; i < tests.length; i++) {
         var test = tests[i];
-        var promise = requestRun(releaseName, releaseNumber, test.name, testFile.baseUrl + test.url);
+        var promise = requestRun(releaseName, releaseNumber, test.name, testFile.baseUrl + test.url, test.config);
 
         promises.push(promise);
     }

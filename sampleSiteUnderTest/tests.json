@@ -3,7 +3,8 @@
     "tests": [
         {
             "name": "Main Page, with no alterations",
-            "url": "index.html"
+            "url": "index.html",
+            "config": {}
         },
         {
             "name": "Main Page: in which the button is clicked",
@@ -13,8 +14,8 @@
                     "width": 1024,
                     "height": 768
                 },
-                "injectCss": "#awesome-div { display: none; }",
-                "injectJs": "document.getElementById('foobar').innerText = 'foo';"
+                "injectCss": "",
+                "injectJs": "$('#div-killer').click();"
             }
         }
     ]
