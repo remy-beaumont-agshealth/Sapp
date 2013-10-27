@@ -8,18 +8,11 @@ program
     .option('-b, --build-number <number>', 'Build number for the dpxdt server.  Defaults to 1.', 1);
 
 program
-    .command('new <testFileName>')
+    .command('* <testFileName>')
     .description('start a new release')
     .action(function (testFileName) {
         var commands = getCommands();
         commands.runTestsOnNewRelease(testFileName);
-    });
-
-program
-    .command('rerun <testFileName>')
-    .description('Run the specified tests on the most recent release')
-    .action(function (testFileName) {
-        console.log("Rerunning");
     });
 
 program.parse(process.argv);
