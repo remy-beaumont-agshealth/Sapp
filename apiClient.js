@@ -23,7 +23,7 @@ function createApiClientForRelease(baseUrl, buildId, releaseName) {
         return makeCall('create_release',
             {
                 build_id: buildId,
-                release_name: (new Date()).toJSON()
+                release_name: releaseName
             });
     }
 
