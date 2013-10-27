@@ -1,37 +1,41 @@
-var testFileName = process.argv[2];
+#!/usr/bin/env node
+var program = require('commander');
 
-var Q = require('q');
-var fs = require('fs');
-var client = require('./apiClient')('http://localhost:5000/api/', 1);
+program
+    .version('0.0.0')
+    .option('-t, --test-file <path>', 'JSON file describing all of your tests')
+    .option('-d, --dpxdt-url <url>', 'Base url for the dpxdt server. Defaults to http://localhost:5000')
+    .option('-r, --release-name <name>', 'Name of the release for which you want to queue all of your tests')
+    .option('-b, --build-number <number>', 'Build number for the dpxdt server.  Defaults to 1.');
 
-
-client.createRelease()
-    .then(function (body) {
-        return loadTests()
-            .then(function (testFile) {
-                return runTests(body.release_name, body.release_number, testFile);
-            });
-    })
-    .done(console.log);
-
-
-function loadTests() {
-    console.log("Loading " + testFileName);
-    return Q.nfcall(fs.readFile, testFileName).then(function (fileData) {
-        return JSON.parse(fileData);
+program
+    .command('new <testFileName>')
+    .description('start a new release')
+    .action(function (testFileName) {
+        var commands = getCommands();
+        commands.runTestsOnNewRelease(testFileName);
     });
-}
 
-function runTests(releaseName, releaseNumber, testFile) {
-    console.log("Enqueueing tests for " + releaseName + ":" + releaseNumber);
-    var promises = [];
-    var tests = testFile.tests;
-    for (var i = 0; i < tests.length; i++) {
-        var test = tests[i];
-        var promise = client.requestRun(releaseName, releaseNumber, test.name, testFile.baseUrl + test.url, test.config);
+program
+    .command('rerun <testFileName>')
+    .description('Run the specified tests on the most recent release')
+    .action(function (testFileName) {
+        console.log("Rerunning");
+    });
 
-        promises.push(promise);
+program.parse(process.argv);
+
+
+function getCommands() {
+
+    var dpxdtUrl = !!program.dpxdtUrl ? program.dpxdtUrl : 'http://localhost:5000';
+    var releaseName = !!program.releaseName ? program.releaseName : (new Date()).toJSON();
+    var buildNumber = !!program.buildNumber ? program.buildNumber : 1;
+
+    if (!dpxdtUrl || !releaseName || !buildNumber) {
+        program.help(); //exits immediately
     }
 
-    return Q.all(promises);
+    var commands = require('./commands')(dpxdtUrl, buildNumber, releaseName);
+    return commands;
 }
