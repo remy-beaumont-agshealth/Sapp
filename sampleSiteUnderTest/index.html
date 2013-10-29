@@ -1,7 +1,8 @@
 <!DOCTYPE html>
+<html>
 <head>
     <style>
-        #awesome-div {
+        div {
             border: 2px solid gold;
         }
     </style>
@@ -12,7 +13,7 @@
     maybe this little page can help you understand how to use this dpxdt client.
 </p>
 
-<div id="awesome-div">
+<div>
     <p>
         This is a div.  It should disappear when the button is clicked.
     </p>
@@ -24,10 +25,6 @@
 
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script>
-    $('#div-killer').on('click', function(){
-        $('#awesome-div').hide();
-    });
-</script>
+<script src="divKiller/divKiller.js"></script>
 </body>
 </html>

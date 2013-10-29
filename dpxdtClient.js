@@ -8,11 +8,12 @@ program
     .option('-b, --build-number <number>', 'Build number for the dpxdt server.  Defaults to 1.', 1);
 
 program
-    .command('* <testFileName>')
+    .command('* <directoryToScan>')
     .description('start a new release')
-    .action(function (testFileName) {
+    .action(function (path) {
         var commands = getCommands();
-        commands.runTestsOnNewRelease(testFileName);
+      
+        commands.runTestsOnNewRelease(path);
     });
 
 program.parse(process.argv);
