@@ -13,7 +13,7 @@ program
     .action(function (path) {
         var commands = getCommands();
       
-        commands.runTestsOnNewRelease(path);
+        commands.runTestsOnNewRelease(__dirname + '/' + path);
     });
 
 program.parse(process.argv);
